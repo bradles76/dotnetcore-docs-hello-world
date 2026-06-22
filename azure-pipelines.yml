@@ -4,10 +4,10 @@
 # https://aka.ms/yaml
 
 trigger:
-- <branch-specification>
+- main
 
 pool:
-  vmImage: <agent-specification>
+  vmImage: windows-latest
 
 steps:
 - task: DotNetCoreCLI@2
