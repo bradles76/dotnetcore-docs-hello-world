@@ -9,48 +9,17 @@ trigger:
 pool:
   vmImage: windows-latest
 
-variables:
-  # Prefer a variable group for real usage:
-  # - group: mdssc-secrets
-  SCAN_TIMEOUT: '600'
-  POLL_INTERVAL: '5'
-  FAIL_ON_VULNERABILITIES: 'true'
-  VULNERABILITY_THRESHOLD: 'high'
+steps:
+- task: DotNetCoreCLI@2
+  inputs:
+    azureSubscription: 'Azure subscription AB(269b82d4-ef3b-4129-a3b0-a605cc76352c)'
+    command: 'publish'
+    publishWebProjects: true
 
-stages:
-  - stage: BuildAndScan
-    displayName: Build and MDSSC Scan
-    jobs:
-      - job: WebAppBuild
-        displayName: Build web app and scan with MDSSC
-        steps:
-          - checkout: self
-            clean: true
-
-          - script: |
-              docker pull opswat/mdssc-scanner:latest
-
-              docker run --rm \
-                -e MDSSC_SERVER="$(MDSSC_SERVER)" \
-                -e MDSSC_API_KEY="$(MDSSC_API_KEY)" \
-                -e SCAN_TIMEOUT="$(SCAN_TIMEOUT)" \
-                -e POLL_INTERVAL="$(POLL_INTERVAL)" \
-                -e FAIL_ON_VULNERABILITIES="$(FAIL_ON_VULNERABILITIES)" \
-                -e VULNERABILITY_THRESHOLD="$(VULNERABILITY_THRESHOLD)" \
-                -v "$(Build.SourcesDirectory):/scan" \
-                opswat/mdssc-scanner:latest
-            displayName: "Scan repo with MDSSC CLI Scanner"
-
-          - task: DotNetCoreCLI@2
-            inputs:
-              azureSubscription: 'Azure subscription AB(269b82d4-ef3b-4129-a3b0-a605cc76352c)'
-              command: 'publish'
-              publishWebProjects: true
-
-          - task: AzureWebApp@1
-            inputs:
-              azureSubscription: 'Azure subscription AB(269b82d4-ef3b-4129-a3b0-a605cc76352c)'
-              appType: 'webApp'
-              appName: 'coreabapp'
-              package: '$(System.DefaultWorkingDirectory)/**/*.zip'
-              deploymentMethod: 'auto'
+- task: AzureWebApp@1
+  inputs:
+    azureSubscription: 'Azure subscription AB(269b82d4-ef3b-4129-a3b0-a605cc76352c)'
+    appType: 'webApp'
+    appName: 'coreabapp'
+    package: '$(System.DefaultWorkingDirectory)/**/*.zip'
+    deploymentMethod: 'auto'
