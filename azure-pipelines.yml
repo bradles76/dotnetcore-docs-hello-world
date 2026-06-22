@@ -15,3 +15,10 @@ steps:
     azureSubscription: 'Azure subscription AB(269b82d4-ef3b-4129-a3b0-a605cc76352c)'
     command: 'publish'
     publishWebProjects: true
+- task: AzureWebApp@1
+  inputs:
+    azureSubscription: 'Azure subscription AB(269b82d4-ef3b-4129-a3b0-a605cc76352c)'
+    appType: 'webApp'
+    appName: 'coreabapp'
+    package: '$(System.DefaultWorkingDirectory)/**/*.zip'
+    deploymentMethod: 'auto'
